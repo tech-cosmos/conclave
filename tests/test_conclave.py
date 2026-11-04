@@ -156,7 +156,8 @@ class LoopTests(unittest.TestCase):
             push = false
         """)
         env = {**os.environ, "PYTHON": sys.executable, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t",
-               "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t", "CONCLAVE_LOCAL": "1"}
+               "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t", "CONCLAVE_LOCAL": "1",
+               "PYTHONPATH": str(Path(__file__).resolve().parents[1])}  # works from a plain checkout
         r = subprocess.run([sys.executable, "-m", "conclave", "loop", "solo"], cwd=root, env=env,
                            capture_output=True, text=True, timeout=60)
         self.assertEqual(r.returncode, 0, r.stderr)
