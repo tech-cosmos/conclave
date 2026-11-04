@@ -24,6 +24,7 @@ from pathlib import Path
 
 from conclave.config import Config, Member
 
+LANE_PLACEHOLDER = "(The Dean writes this lane.)"
 BOARD_SECTIONS = ["Pope's decisions", "Claims", "Results", "Handoffs", "Requests", "Pings"]
 
 
@@ -103,8 +104,11 @@ def scaffold(cfg: Config, overwrite: bool = False) -> list[Path]:
     put(w / "DEAN.md", render("DEAN.md", **common))
     put(w / "COORD.md", render("COORD.md", **common))
     for c in cfg.cardinals:
-        put(lane_file(cfg, c), render(
-            "lane.md", **common, cardinal=c.name, lane=c.lane or "(The Dean writes this lane.)",
+        lf = lane_file(cfg, c)
+        if c.lane and lf.exists() and LANE_PLACEHOLDER in lf.read_text():
+            lf.unlink()  # lane was written into conclave.toml after init: refresh the untouched placeholder
+        put(lf, render(
+            "lane.md", **common, cardinal=c.name, lane=c.lane or LANE_PLACEHOLDER,
             paths=bullet(c.paths) if c.paths else "- anywhere in the repo, but stay out of other lanes' paths",
             branch=branch(c),
         ))
