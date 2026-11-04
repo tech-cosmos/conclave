@@ -1,0 +1,10 @@
+{
+  "name": "conclave",
+  "version": "0.1.0",
+  "description": "Run a managed agent team: you are the Pope, Claude is the Dean, Cardinals work on any model, Devils argue back.",
+  "author": { "name": "Shivam Raj" },
+  "homepage": "https://github.com/tech-cosmos/conclave",
+  "repository": "https://github.com/tech-cosmos/conclave",
+  "license": "MIT",
+  "keywords": ["multi-agent", "orchestration", "agent-team", "research"]
+}

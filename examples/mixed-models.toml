@@ -1,0 +1,73 @@
+# One team, five model families. Cheap models on mechanical lanes, the strongest on the hardest,
+# and Devils that share none of the Cardinals' blind spots.
+
+[conclave]
+name = "api-latency"
+goal = "Cut p95 latency of GET /search from 120 ms to under 50 ms"
+done_when = "python bench/latency.py prints p95 < 50 ms on 3 runs in a row"
+budget = "2 days, $40 of API calls"
+rules = ["Real improvements only: no caching the benchmark's own queries, no editing bench/."]
+
+[pope]
+notify = "desktop"
+
+[providers.openrouter]
+kind = "openai"
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+
+[providers.kimi]
+kind = "anthropic"
+base_url = "https://api.moonshot.ai/anthropic"
+api_key_env = "MOONSHOT_API_KEY"
+
+[providers.local]
+kind = "openai"
+base_url = "http://localhost:11434/v1"
+
+[dean]
+runner = "claude"
+model = "opus"
+
+[[cardinals]]                      # hardest lane, strongest model, Claude login
+name = "query"
+lane = "Query planning and the index lookup in src/search/"
+runner = "claude"
+model = "opus"
+paths = ["src/search/"]
+
+[[cardinals]]                      # Claude Code's harness, Kimi's brain
+name = "db"
+lane = "Database access: N+1s, indexes, connection pooling (src/db/)"
+runner = "claude"
+provider = "kimi"
+model = "kimi-k2-thinking"
+paths = ["src/db/", "migrations/"]
+
+[[cardinals]]                      # mechanical lane, cheap model through opencode
+name = "serde"
+lane = "Response serialization and payload size (src/api/)"
+runner = "opencode"
+model = "openrouter/qwen/qwen3-coder"
+paths = ["src/api/"]
+
+[[devils]]
+name = "r1"
+provider = "openrouter"
+model = "deepseek/deepseek-r1"
+
+[[devils]]
+name = "gemini"
+runner = "gemini"
+
+[[devils]]
+name = "local-llama"
+provider = "local"
+model = "llama3.3"
+persona = "a database administrator who thinks every latency problem is a missing index"
+
+[compute]
+backend = "local"
+
+[loop]
+max_sessions = 0

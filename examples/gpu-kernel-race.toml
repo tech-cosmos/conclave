@@ -1,0 +1,70 @@
+# The setup The Conclave was born in: three Cardinals racing GPU kernels on one shared H100 sandbox,
+# with a daily budget of judge runs. (Open Kernel Challenge, 2026: 2.2x over SGLang on the full decoder layer.)
+
+[conclave]
+name = "kernel-race"
+goal = "Fastest correct muse_decode_layer (geometric-mean speedup vs SGLang on the judge's H200)"
+done_when = "layer speedup >= 2.3x on the judge, or the challenge closes"
+budget = "1 H100 sandbox for 5 nights; 20 checks + 10 scored runs per problem per UTC day"
+base_branch = "main"
+rules = [
+  "Follow each problem's TASK.md: CUDA-graph capturable, no host syncs, no caching anything derived from inputs.",
+  "Precision never below the reference's. Weights stay at their own precision.",
+  "Never resubmit unchanged code hoping for a lucky run. Log every judge run under Results.",
+  "Only submit when local correctness passes AND a check on the same code beat our best board result.",
+]
+
+[pope]
+notify = "ntfy:my-conclave-pings"          # phone pings from the sandbox
+
+[dean]
+runner = "claude"
+model = "opus"
+
+[[cardinals]]
+name = "layer"
+lane = "muse_decode_layer: fuse across op boundaries, drop in the other lanes' kernels"
+runner = "claude"
+model = "opus"
+paths = ["muse_decode_layer/"]
+
+[[cardinals]]
+name = "moe"
+lane = "muse_moe_w4a16: NVFP4 grouped GEMV/GEMM with skewed routing"
+runner = "claude"
+model = "opus"
+paths = ["muse_moe_w4a16/"]
+
+[[cardinals]]
+name = "proj"
+lane = "muse_bf16_proj: BF16 GEMV/GEMM for m = 1..256; hand kernels to layer"
+runner = "codex"
+model = "gpt-5-codex"
+paths = ["muse_bf16_proj/"]
+
+[providers.openrouter]
+kind = "openai"
+base_url = "https://openrouter.ai/api/v1"
+api_key_env = "OPENROUTER_API_KEY"
+
+[[devils]]
+name = "codex-devil"
+runner = "codex"
+
+[[devils]]
+name = "r1"
+provider = "openrouter"
+model = "deepseek/deepseek-r1"
+persona = "a GPU performance engineer who has written CUTLASS kernels and distrusts standalone micro-benchmarks"
+
+[compute]
+backend = "remote"
+exec_prefix = ["ssh", "gpu-sandbox"]      # e.g. a Daytona/Lambda/RunPod box in your ~/.ssh/config
+remote_dir = "~/okc-muse"
+locks = ["gpu"]                            # time kernels inside: conclave lock gpu -- python bench.py
+
+[loop]
+session_timeout_min = 90
+pause_between_s = 30
+backoff_s = 900
+push = true

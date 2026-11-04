@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d9b25f"/>
+    </marker>
+    <style>
+      .n{fill:#f3ecda;font-size:16px;font-weight:700}
+      .s{fill:#b8c0d9;font-size:12px}
+      .h{fill:#d9b25f;font-size:12px;font-weight:700;letter-spacing:1.5px}
+      .dead{fill:#e0566b;font-size:12.5px;font-style:italic}
+    </style>
+  </defs>
+  <rect width="1200" height="300" rx="18" fill="#0b1330"/>
+  <text x="40" y="40" class="h">ONE CARDINAL SESSION = ONE CYCLE · FRESH CONTEXT EVERY TIME · MEMORY LIVES IN FILES AND GIT</text>
+  <g>
+    <rect x="40" y="70" width="165" height="110" rx="12" fill="#1b2a5e" stroke="#8a96b8"/>
+    <text x="56" y="100" class="n">1 · Read</text>
+    <text x="56" y="124" class="s">CONCLAVE.md, lane,</text>
+    <text x="56" y="142" class="s">Pope's decisions,</text>
+    <text x="56" y="160" class="s">own STATE file</text>
+
+    <rect x="231" y="70" width="165" height="110" rx="12" fill="#1b2a5e" stroke="#8a96b8"/>
+    <text x="247" y="100" class="n">2 · Claim</text>
+    <text x="247" y="124" class="s">pick the most valuable</text>
+    <text x="247" y="142" class="s">next step; post it</text>
+    <text x="247" y="160" class="s">under Claims</text>
+
+    <rect x="422" y="70" width="165" height="110" rx="12" fill="#1b2a5e" stroke="#d9b25f" stroke-width="2"/>
+    <text x="438" y="100" class="n">3 · Measure first</text>
+    <text x="438" y="124" class="s">cheap test + a pass</text>
+    <text x="438" y="142" class="s">mark, written down</text>
+    <text x="438" y="160" class="s">before building</text>
+
+    <rect x="613" y="70" width="165" height="110" rx="12" fill="#1b2a5e" stroke="#8a96b8"/>
+    <text x="629" y="100" class="n">4 · Build</text>
+    <text x="629" y="124" class="s">only what passed;</text>
+    <text x="629" y="142" class="s">on a shared GPU, time</text>
+    <text x="629" y="160" class="s">inside conclave lock</text>
+
+    <rect x="804" y="70" width="165" height="110" rx="12" fill="#1b2a5e" stroke="#8a96b8"/>
+    <text x="820" y="100" class="n">5 · Commit</text>
+    <text x="820" y="124" class="s">numbers in the msg:</text>
+    <text x="820" y="142" class="s">"p95 61 → 48 ms, n=5"</text>
+    <text x="820" y="160" class="s">update STATE, NOTES</text>
+
+    <rect x="995" y="70" width="165" height="110" rx="12" fill="#1b2a5e" stroke="#8a96b8"/>
+    <text x="1011" y="100" class="n">6 · Stop</text>
+    <text x="1011" y="124" class="s">one Results line,</text>
+    <text x="1011" y="142" class="s">drop the claim,</text>
+    <text x="1011" y="160" class="s">ping only if it matters</text>
+  </g>
+  <g stroke="#d9b25f" stroke-width="2" marker-end="url(#a)">
+    <line x1="207" y1="125" x2="227" y2="125"/>
+    <line x1="398" y1="125" x2="418" y2="125"/>
+    <line x1="589" y1="125" x2="609" y2="125"/>
+    <line x1="780" y1="125" x2="800" y2="125"/>
+    <line x1="971" y1="125" x2="991" y2="125"/>
+  </g>
+  <path d="M504 182 L504 222 L314 222 L314 186" fill="none" stroke="#e0566b" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="516" y="214" class="dead">fails the pass mark → dead end in NOTES, next idea (most die here; that's fine)</text>
+  <path d="M1077 182 L1077 258 L122 258 L122 186" fill="none" stroke="#d9b25f" stroke-width="2" marker-end="url(#a)"/>
+  <text x="600" y="284" class="s" text-anchor="middle">the loop starts a fresh session until STOP · a session that dies fast with no commit (expired login, usage limit) backs off instead of hammering</text>
+</svg>

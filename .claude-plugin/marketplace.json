@@ -1,0 +1,14 @@
+{
+  "name": "conclave",
+  "description": "Conclave: managed agent teams. You're the Pope, your agent is the Dean, Cardinals work on any model, Devils argue back.",
+  "owner": {
+    "name": "Shivam Raj"
+  },
+  "plugins": [
+    {
+      "name": "conclave",
+      "source": "./",
+      "description": "Managed agent teams: the Dean skill (orchestrate Cardinals and Devils) and the setup skill (wire each role to a model)."
+    }
+  ]
+}
