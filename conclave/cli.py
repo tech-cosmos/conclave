@@ -486,7 +486,7 @@ def parser() -> argparse.ArgumentParser:
     x = s.add_parser("devils", help="call the Devils for fresh ideas")
     x.add_argument("brief", nargs="*")
     x.add_argument("--file", "-f")
-    x.add_argument("--only", nargs="*")
+    x.add_argument("--only", action="append", metavar="NAME", help="only this Devil (repeat for more)")
     x.add_argument("--print", action="store_true")
     x = s.add_parser("ping", help="notify the Pope (wins, decisions, done)")
     x.add_argument("message", nargs="+")

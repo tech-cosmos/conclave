@@ -189,7 +189,7 @@ What's built in, so you don't have to ask:
 | `conclave doctor [--ping]` | Checks git, runners and keys; `--ping` makes one tiny call per Devil provider. |
 | `conclave start [names]` / `resume` | Start (or restart) Cardinal loops in the background. |
 | `conclave status [--json]` | Who's working, sessions, last commits, claims, requests, pings. |
-| `conclave devils "<brief>" [-f file] [--only ...]` | One Devils round, in parallel. Answers land in `.conclave/devils/`. |
+| `conclave devils "<brief>" [-f file] [--only name]...` | One Devils round, in parallel. Answers land in `.conclave/devils/`. |
 | `conclave pause [names] [--now]` | Stop after the current session (`--now` kills it). Warns about unpushed work. |
 | `conclave end [--out path]` | Stop everything, check every branch is pushed, write the report (e.g. into your Obsidian vault). |
 | `conclave ping "<msg>"` | Notify the Pope: desktop, phone (`ntfy:<topic>`) or any command. |
