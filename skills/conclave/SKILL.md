@@ -16,7 +16,7 @@ work through a research question). The roles:
 | **Devils** | other models (any API) | devil's advocates, called when the team is stuck |
 
 Everything runs through the `conclave` CLI. If `conclave --version` fails, install it:
-`uv tool install git+https://github.com/tech-cosmos/conclave` (or `pipx install ...`). Then follow the
+`uv tool install conclave-team` (or `pipx install conclave-team`). Then follow the
 `conclave-setup` skill if there is no `conclave.toml` yet.
 
 ## What the Pope says → what you do

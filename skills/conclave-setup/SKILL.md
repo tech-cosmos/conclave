@@ -8,7 +8,7 @@ description: Install Conclave and wire its roles to models - which agent CLI and
 ## 1. Install
 
 ```bash
-uv tool install git+https://github.com/tech-cosmos/conclave   # or: pipx install git+https://...
+uv tool install conclave-team   # or: pipx install conclave-team (the command is `conclave`)
 conclave --version
 ```
 Needs Python 3.11+ and git, plus at least one agent CLI for the Cardinals:

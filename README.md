@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/hero.jpg" alt="The Conclave: a human on the balcony, an orchestrator at the round table, worker agents at their terminals, two devil's advocates in the alcoves" width="100%">
+  <img src="https://raw.githubusercontent.com/tech-cosmos/conclave/main/docs/images/hero.jpg" alt="The Conclave: a human on the balcony, an orchestrator at the round table, worker agents at their terminals, two devil's advocates in the alcoves" width="100%">
 </p>
 
 <h1 align="center">Conclave</h1>
@@ -29,23 +29,23 @@ veto**, so it's an **agent team you manage**:
 
 | | Role | Who plays it | What it does |
 |---|---|---|---|
-| <img src="docs/images/role-pope.jpg" width="72"> | **Pope** | **you** | Sets the goal, the finish line, the budget and the rules. Says yes or no to the big stuff. Gets pinged only for wins, decisions and "done". |
-| <img src="docs/images/role-dean.jpg" width="72"> | **Dean** | your agent (Claude Code, Codex...) with the `conclave` skill | Splits the work into lanes, starts and pauses Cardinals, **verifies every claimed win**, merges, keeps the board, and calls the Devils when the team is stuck. |
-| <img src="docs/images/role-cardinal.jpg" width="72"> | **Cardinals** | headless agent CLIs: `claude`, `codex`, `gemini`, `opencode`, `aider`, or your own | One lane each, on their own branch. Fresh short sessions in a loop. **Test before building.** Commits state the measured numbers. |
-| <img src="docs/images/role-devil.jpg" width="72"> | **Devils** | *different* models, via any API | Devil's advocates. They get the team's real numbers and argue back: what's wrong with the plan, what nobody tried, what to stop doing. |
+| <img src="https://raw.githubusercontent.com/tech-cosmos/conclave/main/docs/images/role-pope.jpg" width="72"> | **Pope** | **you** | Sets the goal, the finish line, the budget and the rules. Says yes or no to the big stuff. Gets pinged only for wins, decisions and "done". |
+| <img src="https://raw.githubusercontent.com/tech-cosmos/conclave/main/docs/images/role-dean.jpg" width="72"> | **Dean** | your agent (Claude Code, Codex...) with the `conclave` skill | Splits the work into lanes, starts and pauses Cardinals, **verifies every claimed win**, merges, keeps the board, and calls the Devils when the team is stuck. |
+| <img src="https://raw.githubusercontent.com/tech-cosmos/conclave/main/docs/images/role-cardinal.jpg" width="72"> | **Cardinals** | headless agent CLIs: `claude`, `codex`, `gemini`, `opencode`, `aider`, or your own | One lane each, on their own branch. Fresh short sessions in a loop. **Test before building.** Commits state the measured numbers. |
+| <img src="https://raw.githubusercontent.com/tech-cosmos/conclave/main/docs/images/role-devil.jpg" width="72"> | **Devils** | *different* models, via any API | Devil's advocates. They get the team's real numbers and argue back: what's wrong with the plan, what nobody tried, what to stop doing. |
 
 > **Born in a GPU kernel competition.** The Conclave ran three Cardinals for five nights on one shared
 > H100 in the Open Kernel Challenge (2026). They built a full MoE decoder layer that measured
 > **2.2x faster than SGLang** on the judge's H200. That setup ships as
-> [`examples/gpu-kernel-race.toml`](examples/gpu-kernel-race.toml).
+> [`examples/gpu-kernel-race.toml`](https://github.com/tech-cosmos/conclave/blob/main/examples/gpu-kernel-race.toml).
 
-<p align="center"><img src="docs/images/architecture.svg" alt="Architecture: Pope above the Dean; the Dean talks to the shared board, the Devils and three Cardinals on different models" width="100%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/tech-cosmos/conclave/main/docs/images/architecture.svg" alt="Architecture: Pope above the Dean; the Dean talks to the shared board, the Devils and three Cardinals on different models" width="100%"></p>
 
 ## Quickstart
 
 ```bash
 # 1. Install the CLI (Python 3.11+, git, no other dependencies)
-uv tool install git+https://github.com/tech-cosmos/conclave     # or: pipx install git+https://github.com/tech-cosmos/conclave
+uv tool install conclave-team     # or: pipx install conclave-team  (the command is `conclave`)
 
 # 2. In the repo you want to improve
 conclave init          # a short wizard: goal, finish line, budget, which model runs each role
@@ -121,8 +121,8 @@ runner = "codex"
 
 Rule of thumb: **put the strongest model on the hardest lane, cheap models on mechanical lanes, and make
 the Devils different model families from the Cardinals** so they don't share the same blind spots.
-Full reference: [`skills/conclave-setup/SKILL.md`](skills/conclave-setup/SKILL.md). Complete configs:
-[`examples/`](examples/).
+Full reference: [`skills/conclave-setup/SKILL.md`](https://github.com/tech-cosmos/conclave/blob/main/skills/conclave-setup/SKILL.md). Complete configs:
+[`examples/`](https://github.com/tech-cosmos/conclave/tree/main/examples).
 
 ## The skills
 
@@ -130,8 +130,8 @@ Two [Agent Skills](https://docs.claude.com/en/docs/claude-code/skills) ship with
 
 | Skill | Use it for |
 |---|---|
-| [`conclave`](skills/conclave/SKILL.md) | Makes your agent **the Dean**: understands "Start a Conclave...", "How's the Conclave?", "Call the Devils", "Pause/End the Conclave". |
-| [`conclave-setup`](skills/conclave-setup/SKILL.md) | Installing, wiring roles to models and keys, remote GPU boxes, fixing `conclave doctor`. |
+| [`conclave`](https://github.com/tech-cosmos/conclave/blob/main/skills/conclave/SKILL.md) | Makes your agent **the Dean**: understands "Start a Conclave...", "How's the Conclave?", "Call the Devils", "Pause/End the Conclave". |
+| [`conclave-setup`](https://github.com/tech-cosmos/conclave/blob/main/skills/conclave-setup/SKILL.md) | Installing, wiring roles to models and keys, remote GPU boxes, fixing `conclave doctor`. |
 
 **Claude Code** (plugin):
 
@@ -148,7 +148,7 @@ For Codex that's `~/.codex/skills/`. `conclave dean` also opens your configured 
 
 ## How it works
 
-<p align="center"><img src="docs/images/session-loop.svg" alt="Session loop: read, claim, measure first, build, commit with numbers, stop; the loop restarts with a fresh session" width="100%"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/tech-cosmos/conclave/main/docs/images/session-loop.svg" alt="Session loop: read, claim, measure first, build, commit with numbers, stop; the loop restarts with a fresh session" width="100%"></p>
 
 **Memory lives in files and git, never in a chat context.** Each Cardinal session starts fresh, reads its
 briefs, does one cycle (45-90 min), commits, writes notes and exits. The loop starts the next session, so
