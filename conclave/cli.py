@@ -88,9 +88,10 @@ def cmd_init(a: argparse.Namespace) -> int:
     cards = []
     for i in range(n):
         cname = ask(f"  Cardinal {i + 1} name", f"cardinal-{i + 1}", y)
-        lane = ask(f"  {cname}'s lane (one line; the Dean refines it)", "", y)
+        lane = ask(f"  {cname}'s lane (one line; the Dean refines it)", getattr(a, "lane", None) or "", y)
         runner = ask(f"  {cname} runs on ({'/'.join(runners.AGENT_RUNNERS)})", default_runner, y)
-        model = ask(f"  {cname} model (blank = the CLI's default)", "", y)
+        cheap = getattr(a, "cheap_models", {}).get(runner, "")
+        model = ask(f"  {cname} model (blank = the CLI's default)", cheap, y)
         cards.append((cname, lane, runner, model))
 
     devil_rows = []
@@ -165,12 +166,108 @@ def cmd_init(a: argparse.Namespace) -> int:
         "max_sessions = 0      # 0 = until paused",
         "push = true           # push each Cardinal's branch after every session (if the repo has a remote)",
     ]
+    if getattr(a, "demo", False):  # one short session, nothing pushed
+        lines = [{"session_timeout_min = 90": "session_timeout_min = 15",
+                  "max_sessions = 0      # 0 = until paused": "max_sessions = 1      # demo: one session",
+                  }.get(ln, ln) for ln in lines]
+        lines = [ln.replace("push = true ", "push = false") if ln.startswith("push = true") else ln for ln in lines]
     (root / CONFIG_NAME).write_text("\n".join(lines) + "\n")
     cfg = load(root)
     scaffold(cfg)
     say(f"\n{{g}}Wrote {CONFIG_NAME} and .conclave/{{x}} (CONCLAVE.md, DEAN.md, COORD.md, lanes/).")
+    if getattr(a, "demo", False):
+        return 0
     say("Next: {b}conclave doctor{x}, then let the Dean refine the lanes and run {b}conclave start{x}.")
     say("Or open the Dean: {b}conclave dean{x}")
+    return 0
+
+
+# ---------------------------------------------------------------- demo
+
+DEMO_SLOW = '''import time
+def count_primes(n):
+    return sum(1 for k in range(2, n) if all(k % d for d in range(2, k)))
+t = time.perf_counter(); r = count_primes(6000); print(f"primes={r} seconds={time.perf_counter()-t:.3f}")
+'''
+CHEAP_MODELS = {"claude": "haiku", "codex": "gpt-5-mini", "gemini": "gemini-2.5-flash"}
+
+
+def _run_slow(path: Path) -> str:
+    r = subprocess.run([sys.executable, "slow.py"], cwd=path, capture_output=True, text=True, timeout=120)
+    return (r.stdout or r.stderr).strip()
+
+
+def cmd_demo(a: argparse.Namespace) -> int:
+    """A throwaway repo with one slow script, the real wizard pre-filled, one short Cardinal session, a verdict."""
+    import tempfile
+    import time
+    root = Path(a.dir).expanduser() if a.dir else Path(tempfile.mkdtemp(prefix="conclave-demo-"))
+    root.mkdir(parents=True, exist_ok=True)
+    if any(root.iterdir()):
+        say(f"{{r}}{root} is not empty.{{x}} Pick an empty folder, or leave it out for a temp one.")
+        return 1
+    env = {**os.environ, "GIT_AUTHOR_NAME": os.environ.get("GIT_AUTHOR_NAME", "conclave-demo"),
+           "GIT_AUTHOR_EMAIL": os.environ.get("GIT_AUTHOR_EMAIL", "demo@conclave.local")}
+    env.setdefault("GIT_COMMITTER_NAME", env["GIT_AUTHOR_NAME"])
+    env.setdefault("GIT_COMMITTER_EMAIL", env["GIT_AUTHOR_EMAIL"])
+    (root / "slow.py").write_text(DEMO_SLOW)
+    for c in (["git", "init", "-q", "-b", "main"], ["git", "add", "-A"], ["git", "commit", "-q", "-m", "A slow script"]):
+        subprocess.run(c, cwd=root, check=True, env=env)
+    baseline = _run_slow(root)
+    say(f"\n{{b}}Conclave demo{{x}} in {{b}}{root}{{x}}")
+    say(f"The repo has one slow script. Right now: {{y}}{baseline}{{x}}")
+    say("{d}This is the real `conclave init` wizard with demo answers filled in. Press Enter to accept, or type your own.{x}")
+
+    os.chdir(root)
+    a.force, a.name, a.cardinals = False, "demo", 1
+    a.goal = "Make slow.py at least 20x faster with exactly the same output"
+    a.done_when = "slow.py prints the same primes= line in under 1/20 of the baseline time"
+    a.budget = "one short session, well under $1"
+    a.lane = "Speed up count_primes in slow.py"
+    a.cheap_models, a.demo = CHEAP_MODELS, True
+    if cmd_init(a):
+        return 1
+    cfg = load(root)
+
+    say("\n{b}Checking the setup{x}")
+    if cmd_doctor(cfg, argparse.Namespace(ping=False)) and not a.yes:
+        if not ask("Some checks failed. Start anyway? (y/n)", "n").lower().startswith("y"):
+            say(f"Fix them in {root / CONFIG_NAME}, then: cd {root} && conclave start")
+            return 1
+    c = cfg.cardinals[0]
+    if not a.yes and not ask(f"\nStart Cardinal {c.name} for one session ({c.runner}"
+                             f"{' / ' + c.model if c.model else ''})? (y/n)", "y").lower().startswith("y"):
+        say(f"Whenever you like: cd {root} && conclave start")
+        return 0
+    cmd_start(cfg, argparse.Namespace(names=[]))
+    say("{d}Working. Usually 1-3 minutes. Ctrl-C stops watching; the Cardinal keeps going "
+        f"(then: cd {root} && conclave status).{{x}}")
+    t0, seen = time.time(), set()
+    try:
+        time.sleep(3)
+        while loop.alive(cfg, c.name):
+            for ln in board_section(cfg, "Claims") + board_section(cfg, "Results") + board_section(cfg, "Pings"):
+                if ln not in seen and "dean: started" not in ln:
+                    seen.add(ln)
+                    say(f"\r  {{g}}board{{x}} {ln.lstrip('- ')}")
+            print(f"\r  {int(time.time() - t0)}s ", end="", flush=True)
+            time.sleep(2)
+    except KeyboardInterrupt:
+        say(f"\nStopped watching. The Cardinal is still working: cd {root} && conclave status")
+        return 0
+
+    wt = worktree(cfg, c)
+    st = loop.read_state(cfg, c.name)
+    say(f"\r\n{{b}}Session finished{{x}} in {int(time.time() - t0)}s (exit {st.get('last_exit')})")
+    commits = git(wt, "log", "--format=%h %s", f"{cfg.base_branch}..HEAD", check=False).splitlines()
+    say("\n".join(f"  commit {ln}" for ln in commits) or "  {r}no commits{x}")
+    after = _run_slow(wt) if wt.exists() else "?"
+    say(f"  before  {baseline}\n  after   {after}")
+    same = baseline.split()[0] == after.split()[0]
+    say(f"  output {'{g}unchanged{x}' if same else '{r}CHANGED{x} (not a real win)'}")
+    say(f"\nLook around: {{b}}cd {root}{{x}} then {{b}}conclave status{{x}}, {{b}}cat .conclave/COORD.md{{x}}, "
+        f"{{b}}conclave end{{x}} for the report.")
+    say(f"Done with it: {{b}}rm -rf {root}{{x}}")
     return 0
 
 
@@ -467,6 +564,10 @@ def parser() -> argparse.ArgumentParser:
         i.add_argument(f"--{f}")
     i.add_argument("--cardinals", type=int)
 
+    x = s.add_parser("demo", help="try it: a throwaway repo, the wizard pre-filled, one short Cardinal session")
+    x.add_argument("dir", nargs="?", help="an empty folder (default: a new temp folder)")
+    x.add_argument("--yes", "-y", action="store_true", help="accept every default, no questions")
+
     d = s.add_parser("doctor", help="check runners, keys and git")
     d.add_argument("--ping", action="store_true", help="make one tiny call to each Devil's provider")
 
@@ -520,6 +621,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if a.command == "init":
             return cmd_init(a)
+        if a.command == "demo":
+            return cmd_demo(a)
         cfg = load(find_root())
         if cfg.compute.backend == "remote" and a.command not in LOCAL_ONLY and not os.environ.get("CONCLAVE_LOCAL"):
             return forward_remote(cfg, argv)

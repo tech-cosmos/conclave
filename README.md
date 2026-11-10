@@ -47,6 +47,10 @@ veto**, so it's an **agent team you manage**:
 # 1. Install the CLI (Python 3.11+, git, no other dependencies)
 uv tool install conclave-team     # or: pipx install conclave-team  (the command is `conclave`)
 
+# Just looking? One command: a throwaway repo, the setup wizard pre-filled (press Enter),
+# one short Cardinal session (~1 min, a few cents), then before/after numbers.
+conclave demo                      # without installing: uvx --from conclave-team conclave demo
+
 # 2. In the repo you want to improve
 conclave init          # a short wizard: goal, finish line, budget, which model runs each role
 conclave doctor --ping # checks CLIs, keys and git, and makes one tiny call to each Devil's API
@@ -185,6 +189,7 @@ What's built in, so you don't have to ask:
 
 | Command | What it does |
 |---|---|
+| `conclave demo [dir]` | Try it: a throwaway repo with a slow script, the wizard pre-filled, one short Cardinal session, before/after numbers. |
 | `conclave init` | Wizard: writes `conclave.toml` and `.conclave/`. Detects installed CLIs and API keys. `--yes` for no questions. |
 | `conclave doctor [--ping]` | Checks git, runners and keys; `--ping` makes one tiny call per Devil provider. |
 | `conclave start [names]` / `resume` | Start (or restart) Cardinal loops in the background. |
