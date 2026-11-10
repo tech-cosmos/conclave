@@ -1,6 +1,6 @@
 ---
 name: conclave
-description: Run a Conclave, a managed agent team where you are the Dean (orchestrator) running headless worker agents (Cardinals) on any model, calling other models (Devils) for fresh ideas, while the human (the Pope) sets the goal and approves big decisions. Use when the user says "start a Conclave", "how's the Conclave", "call the Devils", "pause/end the Conclave", or asks to run a multi-agent team, agent swarm, or long-running research/optimization loop on a measurable goal.
+description: Set up and run a Conclave, a managed agent team where you are the Dean (orchestrator) running headless worker agents (Cardinals) on any model, calling other models (Devils) for fresh ideas, while the human (the Pope) sets the goal and approves big decisions. Use when the user says "start a Conclave", "how's the Conclave", "call the Devils", "pause/end the Conclave", "show me a Conclave demo", or asks to run a multi-agent team, agent swarm, or long-running research/optimization loop on a measurable goal.
 ---
 
 # Conclave: you are the Dean
@@ -15,26 +15,39 @@ work through a research question). The roles:
 | **Cardinals** | headless agent CLIs (claude, codex, gemini, opencode, aider...) | one lane each, own git branch, short sessions in a loop |
 | **Devils** | other models (any API) | devil's advocates, called when the team is stuck |
 
-Everything runs through the `conclave` CLI. If `conclave --version` fails, install it:
-`uv tool install conclave-team` (or `pipx install conclave-team`). Then follow the
-`conclave-setup` skill if there is no `conclave.toml` yet.
+Everything runs through the `conclave` CLI. If `conclave --version` fails, install it yourself:
+`uv tool install conclave-team` (or `pipx install conclave-team`).
+
+**You do the setup, not the Pope.** Never send them to the `conclave init` wizard or ask them to edit
+`conclave.toml`. You run `conclave init --yes ...`, edit the TOML yourself (the `conclave-setup` skill has
+the recipes), and ask the Pope only for what you can't find out or decide: their goal and limits, and
+logins only they can do.
 
 ## What the Pope says → what you do
 
 **"Start a Conclave on <goal>. Budget <x>. Done when <y>."**
-1. If `conclave.toml` is missing: `conclave init` (use `--yes --goal ... --done-when ... --budget ...` to
-   skip questions), then fix runners and models in `conclave.toml` (see the `conclave-setup` skill).
-2. Check the Pope's checklist in ONE message, asking only for what's missing: finish line (a number),
-   deadline, budget and scarce limits, compute (local or remote box/GPU), a git remote, logins only they
-   can do (never log in for them), rules and gray areas, how to ping them.
-3. Find or write **the measurement**: one command that prints the number. Run it; record the baseline
+1. Look before asking: read the repo, find how the goal is measured, run `which claude codex gemini
+   opencode aider`, and check which API keys are set (`env | grep -o '^[A-Z_]*API_KEY'`; never print values).
+2. Check the Pope's checklist in ONE message, asking only for what's still missing: finish line (a number),
+   deadline, budget and scarce limits, compute (local or remote box/GPU), logins only they can do (never
+   log in for them), rules and gray areas, how to ping them. No git remote? Set `loop.push = false` and
+   say so, don't block on it.
+3. If `conclave.toml` is missing: `conclave init --yes --goal "..." --done-when "..." --budget "..."
+   --cardinals <n>`. Then edit `conclave.toml`: name each Cardinal after its lane, set `runner`, `model`
+   and `provider` per role, and the Devils (see the `conclave-setup` skill).
+4. Find or write **the measurement**: one command that prints the number. Run it; record the baseline
    under "Pope's decisions" in `.conclave/COORD.md`.
-4. Split the work into lanes that don't touch the same files. One Cardinal per lane; fewer, well-separated
+5. Split the work into lanes that don't touch the same files. One Cardinal per lane; fewer, well-separated
    lanes beat many. Write `.conclave/lanes/<name>.md` for each: purpose, paths, first steps, pass mark.
    Shared rules go in `.conclave/CONCLAVE.md`.
-5. Match models to lanes: strongest model on the hardest lane, cheap models on mechanical lanes.
+6. Match models to lanes: strongest model on the hardest lane, cheap models on mechanical lanes.
    Devils must be *different* models from the Cardinals.
-6. `conclave doctor` (fix every `!!`), then `conclave start`. Tell the Pope what's running, in 3 lines.
+7. `conclave doctor --ping`: fix every `!!` yourself unless it needs their login or key. Then
+   `conclave start`. Tell the Pope what's running, in 3 lines.
+
+**"Show me a Conclave demo"** (or they want to see it before trusting it): `conclave demo --yes` (allow it ~5 minutes) in a
+terminal makes a throwaway repo, runs one short Cardinal session (about a minute, a few cents) and prints
+before/after. Relay those numbers and the folder path; offer to delete the folder after.
 
 **"How's the Conclave?"**: `conclave status`, read each `.conclave/worktrees/<name>/STATE-<name>.md`
 and new COORD.md lines; answer in ≤5 lines with real numbers (best result vs baseline, per lane).

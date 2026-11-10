@@ -1,6 +1,6 @@
 {
   "name": "conclave",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Run a managed agent team: you are the Pope, Claude is the Dean, Cardinals work on any model, Devils argue back.",
   "author": { "name": "Shivam Raj" },
   "homepage": "https://github.com/tech-cosmos/conclave",

@@ -43,32 +43,44 @@ veto**, so it's an **agent team you manage**:
 
 ## Quickstart
 
+**You talk to your coding agent. It does the setup.** Install once:
+
 ```bash
-# 1. Install the CLI (Python 3.11+, git, no other dependencies)
-uv tool install conclave-team     # or: pipx install conclave-team  (the command is `conclave`)
-
-# Just looking? One command: a throwaway repo, the setup wizard pre-filled (press Enter),
-# one short Cardinal session (~1 min, a few cents), then before/after numbers.
-conclave demo                      # without installing: uvx --from conclave-team conclave demo
-
-# 2. In the repo you want to improve
-conclave init          # a short wizard: goal, finish line, budget, which model runs each role
-conclave doctor --ping # checks CLIs, keys and git, and makes one tiny call to each Devil's API
-conclave start         # Cardinals start working, each in .conclave/worktrees/<name>
-
-# 3. While it runs
-conclave status                         # who's doing what, last commits, claims, pings
-conclave devils "stuck at 61 ms; tried A and B; the profile says C. What are we missing?"
-conclave pause                          # stop after the current sessions
-conclave end --out ~/Obsidian/Vault     # stop, check everything is pushed, write the report
+uv tool install conclave-team          # the CLI (Python 3.11+, git; no other dependencies)
 ```
 
-**Or just talk to the Dean.** Install the skills (below), open Claude Code in your repo and say:
+```
+/plugin marketplace add tech-cosmos/conclave      # in Claude Code: the Dean skills
+/plugin install conclave@conclave
+```
+
+Then, in the repo you want to improve, say:
 
 > *Start a Conclave on making our search API 2x faster. Budget: 2 days and $40. Done when p95 is under 50 ms.*
 
-The Dean asks you once for anything missing, writes the lanes, runs `conclave start`, and gives you a short
-status with real numbers when you ask *"How's the Conclave?"*
+Your agent becomes **the Dean**. It reads the repo, finds or writes the command that measures the goal,
+records the baseline, picks a model for each role from the CLIs and keys you have, splits the work into
+lanes, checks the setup and starts the Cardinals. It asks you **once**, and only for what it can't decide
+itself: a missing finish line or budget, logins only you can do, gray-area rules.
+
+After that, ask in plain words:
+
+| You say | The Dean |
+|---|---|
+| *"How's the Conclave?"* | Best result vs baseline per lane, in five lines, with real numbers it re-checked. |
+| *"Call the Devils."* | Briefs other models with the team's real numbers and brings back ideas worth testing. |
+| *"Pause the Conclave."* / *"End the Conclave."* | Stops the Cardinals, checks every branch is pushed, writes the report. |
+| *"Show me a Conclave demo."* | Runs `conclave demo`: a throwaway repo, one short Cardinal session, before/after. |
+
+**What only you do:** log in to the agent CLIs and export API keys (they're your accounts), set the goal
+and the budget, and say yes or no to the big calls. You get pinged for wins, real decisions and "done".
+
+**Just want to see it work first?** `uvx --from conclave-team conclave demo` (nothing to install). It makes a
+throwaway repo with one slow script, walks you through the setup with answers filled in, runs one Cardinal
+for about a minute (a few cents on Claude Haiku), and prints the numbers before and after.
+
+Not on Claude Code? Copy `skills/conclave` and `skills/conclave-setup` into your agent's skills folder
+([details](#the-skills)), or drive the CLI yourself ([commands](#commands)).
 
 ## Wire each role to any model
 
