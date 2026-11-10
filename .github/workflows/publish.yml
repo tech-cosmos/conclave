@@ -1,0 +1,28 @@
+# Publishes to PyPI when a version tag (v*) is pushed, via PyPI trusted publishing (no API token).
+# One-time setup on pypi.org: add a (pending) trusted publisher for project "conclave-team" with
+# owner "tech-cosmos", repository "conclave", workflow "publish.yml", environment left blank.
+# Release: bump version in pyproject.toml, commit, then `git tag v0.1.0 && git push origin v0.1.0`.
+name: publish
+on:
+  push:
+    tags: ["v*"]
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tag must match the version in pyproject.toml
+        run: |
+          v=$(python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          test "v$v" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != version v$v"; exit 1; }
+      - name: Tests
+        run: |
+          git config --global user.name ci && git config --global user.email ci@example.com
+          python -m unittest discover tests
+      - run: pip install build && python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1
